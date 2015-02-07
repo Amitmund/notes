@@ -1,1 +1,28 @@
 # About Perl Notes
+
+using perl as a grep:
+
+cat some_file | perl -ne 'print if /abc(foo|bar)-something_else/'
+[OR]
+perl -ne 'print if /abc(foo|bar)-something_else/' some_file
+
+
+
+################ regex #################
+
+/hello/ -> work hello should be there in the string
+
+/^hello/ -> ^ mean, the match string should be in start
+/hello$/ -> $ mean, the match string should be at the end
+
+/hel+o/ -> + mean, once or more [ "helo", "hello", "helllllllo"] -> with one "l", or 2 "l" or multple "l"
+/hel*o/ -> * mean, zero or more time. Almost same as above, with true for "heo" too. ]  -> [ "heo", "helo", "hello", "hellllllo" ]
+/hel?o/ -> ? mean, zero or with only one. [ "heo" or "helo" only. ]. This will not match [ hello, hellllllo ]
+
+/hello|goodbye/ -> either|or
+/he..o/ -> . mean any character . [ hello, heazo ]
+/\wello/ -> \w mean alphanmeric or _ (underscore)
+/\bhello/ -> \b mean word boundary => space tab.
+
+######################################################
+
