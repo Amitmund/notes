@@ -1,0 +1,35 @@
+Some notes on Hadoop Technologies:
+__________________________________
+
+
+http://www.dummies.com/how-to/content/the-apache-hadoop-ecosystem.html
+
+
+Related Hadoop Projects
+
+Project Name	Description
+
+Ambari:		An integrated set of Hadoop administration tools for installing, monitoring, and maintaining a Hadoop cluster. Also included are tools to add or remove slave nodes.
+
+Avro:		A framework for the efficient serialization (a kind of transformation) of data into a compact binary format
+
+Flume:		A data flow service for the movement of large volumes of log data into Hadoop
+
+HBase:		A distributed columnar database that uses HDFS for its underlying storage. With HBase, you can store data in extremely large tables with variable column structures.
+
+HCatalog:	A service for providing a relational view of data stored in Hadoop, including a standard approach for tabular data
+
+Hive:		A distributed data warehouse for data that is stored in HDFS; also provides a query language that’s based on SQL (HiveQL)
+
+Hue:		A Hadoop administration interface with handy GUI tools for browsing files, issuing Hive and Pig queries, and developing Oozie workflows
+
+Mahout:		A library of machine learning statistical algorithms that were implemented in MapReduce and can run natively on Hadoop
+
+Oozie:		A workflow management tool that can handle the scheduling and chaining together of Hadoop applications
+
+Pig:		A platform for the analysis of very large data sets that runs on HDFS and with an infrastructure layer consisting of a compiler that produces sequences of MapReduce programs and a language layer consisting of the query language named Pig Latin
+
+Sqoop:		A tool for efficiently moving large amounts of data between relational databases and HDFS
+
+ZooKeeper:	A simple interface to the centralized coordination of services (such as naming, configuration, and synchronization) used by distributed applications
+
