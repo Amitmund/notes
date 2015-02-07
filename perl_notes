@@ -6,6 +6,15 @@ cat some_file | perl -ne 'print if /abc(foo|bar)-something_else/'
 [OR]
 perl -ne 'print if /abc(foo|bar)-something_else/' some_file
 
+grep foo: perl -ne 'print if /foo/'
+
+replaces foo with bar: perl -pe 's/foo/bar/'
+
+# Find line having FOO and print only 
+perl -ne 'print $1 if /(\d+.\d+.\d+.\d+).*(FOO)/'
+
+URL: https://blogs.oracle.com/ksplice/entry/the_top_10_tricks_of
+
 
 
 ################ regex #################
