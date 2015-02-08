@@ -10,14 +10,19 @@ grep foo: perl -ne 'print if /foo/'
 
 replaces foo with bar: perl -pe 's/foo/bar/'
 
-# Find line having FOO and print only 
-perl -ne 'print $1 if /(\d+.\d+.\d+.\d+).*(FOO)/'
+# Find line having FOO and print only the first set-of-words saparated by white-space
+perl -ne 'print "$1\n" if /(\d\S+).*(FOO)/'
+perl -ne 'print "$1 $2\n" if /(\d\S+).*HOSTNAME=(\S+).*(SSL)/'
 
 URL: https://blogs.oracle.com/ksplice/entry/the_top_10_tricks_of
 
-
+$, also known as output field separator, and $" also known as list separator [ in perl ]
+$, = '--';
+say 'A', 'B', 'C';  # A--B--C
+say @names;         # Foo--Bar--Que
 
 ################ regex #################
+
 
 /hello/ -> work hello should be there in the string
 
@@ -32,6 +37,17 @@ URL: https://blogs.oracle.com/ksplice/entry/the_top_10_tricks_of
 /he..o/ -> . mean any character . [ hello, heazo ]
 /\wello/ -> \w mean alphanmeric or _ (underscore)
 /\bhello/ -> \b mean word boundary => space tab.
+
+[...] Match any one character of a class
+[^...] Match any one character not in the bracket
+. Match any character (except newline [^\n]) in non
+
+single-line mode (/s)
+\d Any digit. Equivalent to [0..9] or [[:digit:]]
+\D Any non-digit.
+\s Any whitespace. [ \t\s\n\r\f\v] or [[:space:]]
+\S Any non-whitespace.
+\w Any word character. [a-zA-Z0-9_] or [[:alnum:_]]
 
 ######################################################
 
