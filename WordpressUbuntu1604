@@ -1,0 +1,301 @@
+sudo apt-get update
+sudo apt-get install apache2
+/etc/apache2/apache2.conf
+# ServerName server_domain_or_IP
+sudo apache2ctl configtest
+sudo systemctl restart apache2
+
+#
+sudo apt-get install mysql-server
+sudo apt-get install php libapache2-mod-php php-mcrypt php-mysql
+
+#
+/etc/apache2/mods-enabled/dir.conf
+# Add the following in above file.
+<IfModule mod_dir.c>
+    DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+</IfModule>
+sudo systemctl restart apache2
+
+#sudo systemctl status apache2
+
+
+#Install PHP Modules
+#apt-cache search php- | less
+sudo apt-get install php-cli
+
+# Test php
+vi /var/www/html/info.php
+
+#Content
+<?php
+phpinfo();
+?>
+
+# check:
+http://your_server_IP_address/info.php
+sudo rm /var/www/html/info.php
+
+
+
+# self sign cert
+# https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-apache-in-ubuntu-16-04
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
+sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+
+vi /etc/apache2/conf-available/ssl-params.conf
+
+# from https://cipherli.st/
+# and https://raymii.org/s/tutorials/Strong_SSL_Security_On_Apache2.html
+
+SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
+SSLProtocol All -SSLv2 -SSLv3
+SSLHonorCipherOrder On
+# Disable preloading HSTS for now.  You can use the commented out header line that includes
+# the "preload" directive if you understand the implications.
+#Header always set Strict-Transport-Security "max-age=63072000; includeSubdomains; preload"
+Header always set Strict-Transport-Security "max-age=63072000; includeSubdomains"
+Header always set X-Frame-Options DENY
+Header always set X-Content-Type-Options nosniff
+# Requires Apache >= 2.4
+SSLCompression off 
+SSLSessionTickets Off
+SSLUseStapling on 
+SSLStaplingCache "shmcb:logs/stapling-cache(150000)"
+
+#SSLOpenSSLConfCmd DHParameters "/etc/ssl/certs/dhparam.pem"
+
+
+# Modify the Default Apache SSL Virtual Host File
+sudo cp /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf.bak
+vi /etc/apache2/sites-available/default-ssl.conf
+
+<IfModule mod_ssl.c>
+        <VirtualHost _default_:443>
+                ServerAdmin webmaster@localhost
+
+                DocumentRoot /var/www/html
+
+                ErrorLog ${APACHE_LOG_DIR}/error.log
+                CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+                SSLEngine on
+
+                SSLCertificateFile      /etc/ssl/certs/ssl-cert-snakeoil.pem
+                SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+
+                <FilesMatch "\.(cgi|shtml|phtml|php)$">
+                                SSLOptions +StdEnvVars
+                </FilesMatch>
+                <Directory /usr/lib/cgi-bin>
+                                SSLOptions +StdEnvVars
+                </Directory>
+
+                # BrowserMatch "MSIE [2-6]" \
+                #               nokeepalive ssl-unclean-shutdown \
+                #               downgrade-1.0 force-response-1.0
+
+        </VirtualHost>
+</IfModule>
+
+
+
+###
+
+We will be making some minor adjustments to the file. We will set the normal things we'd want to adjust in a Virtual Host file (ServerAdmin email address, ServerName, etc.), adjust the SSL directives to point to our certificate and key files, and uncomment one section that provides compatibility for older browsers.
+
+After making these changes, your server block should look similar to this:
+
+/etc/apache2/sites-available/default-ssl.conf
+<IfModule mod_ssl.c>
+        <VirtualHost _default_:443>
+                ServerAdmin your_email@example.com
+                ServerName server_domain_or_IP
+
+                DocumentRoot /var/www/html
+
+                ErrorLog ${APACHE_LOG_DIR}/error.log
+                CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+                SSLEngine on
+
+                SSLCertificateFile      /etc/ssl/certs/apache-selfsigned.crt
+                SSLCertificateKeyFile /etc/ssl/private/apache-selfsigned.key
+
+                <FilesMatch "\.(cgi|shtml|phtml|php)$">
+                                SSLOptions +StdEnvVars
+                </FilesMatch>
+                <Directory /usr/lib/cgi-bin>
+                                SSLOptions +StdEnvVars
+                </Directory>
+
+                BrowserMatch "MSIE [2-6]" \
+                               nokeepalive ssl-unclean-shutdown \
+                               downgrade-1.0 force-response-1.0
+
+        </VirtualHost>
+</IfModule>
+
+
+
+####
+
+
+vi /etc/apache2/sites-available/000-default.conf
+
+<VirtualHost *:80>
+        . . .
+
+        Redirect "/" "https://your_domain_or_IP/"
+
+        . . .
+</VirtualHost>
+
+
+#Step 4: Enable the Changes in Apache
+
+
+sudo a2enmod ssl
+sudo a2enmod headers
+sudo a2ensite default-ssl
+sudo a2enconf ssl-params
+sudo apache2ctl configtest
+sudo systemctl restart apache2
+
+
+#
+Find the Redirect line we added earlier. Add permanent to that line, which changes the redirect from a 302 temporary redirect to a 301 permanent redirect:
+
+/etc/apache2/sites-available/000-default.conf
+<VirtualHost *:80>
+        . . .
+
+        Redirect permanent "/" "https://your_domain_or_IP/"
+
+        . . .
+</VirtualHost>
+
+
+#
+sudo apache2ctl configtest
+sudo systemctl restart apache2
+
+
+
+# https://www.digitalocean.com/community/tutorials/how-to-install-wordpress-with-lamp-on-ubuntu-16-04
+
+mysql -u root -p
+mysql>
+CREATE DATABASE wordpress DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+GRANT ALL ON wordpress.* TO 'wordpressuser'@'localhost' IDENTIFIED BY 'password';
+FLUSH PRIVILEGES;
+EXIT;
+
+sudo apt-get update
+sudo apt-get install php-curl php-gd php-mbstring php-mcrypt php-xml php-xmlrpc libapache2-mod-php php php7.0-mbstring php-mysql php7.0 libapache2-mod-php7.0 apache2
+a2query -m php7.0
+sudo a2enmod php7.0
+sudo service apache2 restart
+
+#
+/etc/apache2/apache2.conf
+Step 3: Adjust Apache's Configuration to Allow for .htaccess Overrides and Rewrites
+Next, we will be making a few minor adjustments to our Apache configuration. Currently, the use of .htaccess files is disabled. WordPress and many WordPress plugins use these files extensively for in-directory tweaks to the web server's behavior.
+
+Additionally, we will enable mod_rewrite, which will be needed in order to get WordPress permalinks to function correctly.
+
+Enable .htaccess Overrides
+
+Open the primary Apache configuration file to make our first change:
+
+sudo nano /etc/apache2/apache2.conf
+To allow .htaccess files, we need to set the AllowOverride directive within a Directory block pointing to our document root. Towards the bottom of the file, add the following block:
+
+/etc/apache2/apache2.conf
+. . .
+
+<Directory /var/www/html/>
+    AllowOverride All
+</Directory>
+
+. . .
+When you are finished, save and close the file.
+
+
+#
+sudo a2enmod rewrite
+sudo apache2ctl configtest
+sudo systemctl restart apache2
+
+
+# Step 4: Download WordPress
+
+cd /tmp
+curl -O https://wordpress.org/latest.tar.gz
+tar xzvf latest.tar.gz
+touch /tmp/wordpress/.htaccess
+chmod 660 /tmp/wordpress/.htaccess
+
+
+cp /tmp/wordpress/wp-config-sample.php /tmp/wordpress/wp-config.php
+
+# for later upgrade
+mkdir /tmp/wordpress/wp-content/upgrade
+
+#Now, we can copy the entire contents of the directory into our document root. We are using the -a flag to make sure our permissions are maintained. We are using a dot at the end of our source directory to indicate that everything within the directory should be copied, including hidden files (like the .htaccess file we created):
+
+sudo cp -a /tmp/wordpress/. /var/www/html
+
+
+sudo chown -R amund:www-data /var/www/html
+
+sudo find /var/www/html -type d -exec chmod g+s {} \;
+
+sudo find /var/www/html -type d -exec chmod g+s {} \;
+
+sudo chmod -R g+w /var/www/html/wp-content/themes
+sudo chmod -R g+w /var/www/html/wp-content/plugins
+
+
+curl -s https://api.wordpress.org/secret-key/1.1/salt/
+# copy the above output
+
+vi /var/www/html/wp-config.php
+# search for "AUTH_KEY"
+Delete those lines and paste in the values you copied from the command line:
+
+vi /var/www/html/wp-config.php
+
+. . .
+
+define('DB_NAME', 'wordpress');
+
+/** MySQL database username */
+define('DB_USER', 'wordpressuser');
+
+/** MySQL database password */
+define('DB_PASSWORD', 'password');
+
+. . .
+
+define('FS_METHOD', 'direct');
+
+
+http://server_domain_or_IP
+
+
+#Upgrading WordPress
+
+sudo chown -R www-data /var/www/html
+sudo chown -R amund /var/www/html
+
+
+
+#https://www.digitalocean.com/community/tutorials/how-to-use-haproxy-to-set-up-http-load-balancing-on-an-ubuntu-vps
+
+# https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts
+
+
+
+
+
