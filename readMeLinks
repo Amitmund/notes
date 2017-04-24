@@ -1,5 +1,5 @@
 http://quiz.geeksforgeeks.org/check-characters-given-string-can-rearranged-form-palindrome/
 Note:
-  If number of odd character is more then one then its a false palindrome.
+  if the count array has more than one odd values, return false.
 
 http://quiz.geeksforgeeks.org/
