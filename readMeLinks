@@ -21,3 +21,41 @@ curl ipinfo.io
 
 # understanding linux control groups(cgroups)
 https://sysadmincasts.com/episodes/14-introduction-to-linux-control-groups-cgroups
+
+################################
+#Getting IP and updating a file:
+host_ip_address=$(ifconfig eth0 | grep "inet " | awk '{print $2}')
+echo $host_ip_address
+
+perl -pi -e 's/(\w+) (\w+)/$2$1/g' test1
+
+perl -pi -e "s/cluster_name: .*/cluster_name: ‘Your_new_cluster_name'/" cassandra.yaml
+
+perl -pi -e "s/listen_address: .*/listen_address: 192.168.64.88/" cassandra.yaml
+
+perl -pi -e "s/^rpc_address: .*/rpc_address: 0.0.0.0/" cassandra.yaml
+
+host 192.168.64.16 | perl -ne 'print "$1\n" if /^.*?(\S+)[!?]?\s*$/‘  # To get the last word.
+
+host 192.168.64.16 | perl -ne 'print "$1\n" if /^.*?(\S+)[!?]?\s*$/' | perl -pe 's/(.*?)\.(.*)/mega.dev.$2/'
+
+
+#Update the docker-compose.yml file's "SMTPSERVER: 10.11.11.11" to "SMTPSERVER: 10.112.129.11". 
+# As discussed the SMTPSERVER, need to be same at the current host.
+# command:
+
+# This command get the ip address of the host
+# commmand:
+host_ip_address=$(ifconfig eth0 | grep "inet " | awk '{print $2}')
+
+# check the output without updating the file inline:
+# command:
+perl -p -e "s/SMTPSERVER: .*/SMTPSERVER: ${host_ip_address}/" docker-compose.yml
+
+# The following command update the docker-compose.yml file with the host_ip_address
+# command:
+perl -pi -e "s/SMTPSERVER: .*/SMTPSERVER: ${host_ip_address}/" docker-compose.yml
+
+# grep "SMTPSERVER", should return: SMTPSERVER: 10.112.129.11
+# command:
+grep SMTPSERVER
