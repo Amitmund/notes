@@ -18,3 +18,6 @@ python -m SimpleHTTPServer 8000
 
 # To know host ip information.
 curl ipinfo.io
+
+# understanding linux control groups(cgroups)
+https://sysadmincasts.com/episodes/14-introduction-to-linux-control-groups-cgroups
