@@ -10,3 +10,11 @@ http://bartsimons.me/sync-folders-and-files-on-linux-with-rsync-and-inotify/
 
 # Good learning in lots of related to dev-ops tools.
 http://www.learnitguide.net/
+
+# Before python3:
+python -m SimpleHTTPServer 8000
+
+#sock proxy
+
+# To know host ip information.
+curl ipinfo.io
