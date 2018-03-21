@@ -1,0 +1,27 @@
+hg clone ssh://hg.cp.nai.org//var/hg/repos/your/repo
+hg pull
+vi <file>
+hg commit -u <yourUsername> -m "comment here"
+hg push
+
+################
+some time you might get error while pushing, as following:
+
+abort: push creates new remote head <someRevisionNumber>!
+(did you forget to merge? use push -f to force)
+
+
+If so:
+
+we should not use, -f . This will break the repo.
+
+If you have the "rebase" extension enabled, you can fix this with "hg pull --rebase".  
+
+However you probably don't have that enabled, so run the following to do a merge:
+
+hg pull
+hg merge
+hg commit -u <userName> -m "Merged"
+hg push
+
+####################
